@@ -9,4 +9,16 @@ const router = Router()
 //Invoca o método estático pegaTodasAsPessoas do Controller
 router.get('/pessoas', PessoaController.pegaTodasAsPessoas)
 
+//Invoca o método estático pegaUmaPessoa do Controller
+router.get('/pessoas/:id', PessoaController.pegaUmaPessoa)
+
+//Invoca o método estático criarPessoa do Controller
+router.post('/pessoas', PessoaController.criaPessoa)
+
+//Invoca o método estático atualizaPessoa do Controller
+router.put('/pessoas/:id', PessoaController.atualizaPessoa)
+
+//Invoca o método estático apagaPessoa do Controller
+router.delete('/pessoas/:id', PessoaController.apagaPessoa)
+
 module.exports = router
