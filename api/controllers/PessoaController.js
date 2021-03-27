@@ -85,6 +85,16 @@ class PessoaController {
         }
     }
 
+    static async restauraPessoa(req, res) {
+        const {id} = req.params
+        try {
+            await database.Pessoas.restore({where: {id: Number(id)}})
+            return res.status(200).json({mensagem: `Id ${id} restaurado`})
+        } catch (erro) {
+            return res.status(500).json(erro.message)
+        }
+    }
+
     static async pegaUmaMatricula(req, res) {
         const { estudanteId, matriculaId } = req.params
         try {
@@ -138,6 +148,16 @@ class PessoaController {
             res.status(200).json({mensagem: `Id ${matriculaId} deletado`})
         } catch (erro) {
             //Caso haja erro, retornaremos a mensagem em JSON
+            return res.status(500).json(erro.message)
+        }
+    }
+
+    static async restauraMatricula(req, res) {
+        const { estudanteId, matriculaId } = req.params
+        try {
+            await database.Matriculas.restore({where: {id: Number(matriculaId)}})
+            return res.status(200).json({mensagem: `Id ${matriculaId} restaurado`})
+        } catch (erro) {
             return res.status(500).json(erro.message)
         }
     }
