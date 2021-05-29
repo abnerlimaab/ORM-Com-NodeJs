@@ -1,14 +1,32 @@
 const database = require('../models')
+const Sequelize = require('sequelize')
+//Importe de operadores do Sequelize
+const Op = Sequelize.Op
 
 class TurmaController {
     static async pegaTodasAsTurmas(req, res) {
+        //Descontrução da requisição colhendo a data_inicial e data_final da query string
+        const { data_inicial, data_final } = req.query
+        const where = {}
+        data_inicial || data_final ? where.data_inicio = {} : null
+        data_inicial ? where.data_inicio[Op.gte] = data_inicial : null
+        data_final ? where.data_inicio[Op.lte] = data_final : null
         try {
-            const todasAsTurmas = await database.Turmas.findAll()
+            const todasAsTurmas = await database.Turmas.findAll({where})
             return res.status(200).json(todasAsTurmas)
         } catch (erro) {
             res.status(500).json(erro.message)
         }
     }
+
+    // {
+    //     where : {
+    //         data_inicio: {
+    //             [Op.gte]: data,
+    //             [Op.lte]: data
+    //         }
+    //     }
+    // }
 
     static async pagaUmaTurma(req, res) {
         const {id} = req.params

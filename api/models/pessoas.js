@@ -5,11 +5,19 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class Pessoas extends Model {
     static associate(models) {
+      //Associação (1, n) de Pessoas para Turmas
       Pessoas.hasMany(models.Turmas, {
+        //chave estrangeira utilizada no relacionamento
         foreignKey: 'docente_id'
       })
+      //Associação de Pessoas para Matrículas (1, n)
       Pessoas.hasMany(models.Matriculas, {
-        foreignKey: 'estudante_id'
+        //chave estrangeira utilizada no relacionamento
+        foreignKey: 'estudante_id',
+        //Condição passada no WHERE utilizada pelo sequelize (definição de escopo)
+        scope: { status: 'confirmado' },
+        //Nome do escopo
+        as: 'aulasMatriculadas'
       })
     }
   };
