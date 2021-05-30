@@ -9,9 +9,9 @@ const router = Router()
 //Definição de Rotas e a função correspondente do Controller
 //Não é necessário instânciar pois os métodos foram definidos como static
 //O caractere ":" indica um parâmetro passado na requisição
-router.get('/pessoas', PessoaController.pegaPessoasAtivas)
+router.get('/pessoas', PessoaController.pegaTodasAsPessoas)
 
-router.get('/pessoas/todos', PessoaController.pegaTodasAsPessoas)
+router.get('/pessoas/ativas', PessoaController.pegaPessoasAtivas)
 
 router.get('/pessoas/:id', PessoaController.pegaUmaPessoa)
 

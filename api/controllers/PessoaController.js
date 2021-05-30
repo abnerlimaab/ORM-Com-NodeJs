@@ -1,13 +1,16 @@
 //Importa o model
-const database = require('../models')
+//const database = require('../models')
 //Importa o Sequelize
-const Sequelize = require('sequelize')
+//const Sequelize = require('sequelize')
+
+const { PessoasServices } = require('../services')
+const pessoasServices = new PessoasServices()
 
 class PessoaController {
     //Utilizaremos métoddos estáticos para que não seja necessária a instânciação de um novo objeto e definiremos como função async pois há uma comunicação assíncrona com o banco de dados
     static async pegaPessoasAtivas(req, res) {
         try {
-            const pessoasAtivas = await database.Pessoas.findAll()
+            const pessoasAtivas = await pessoasServices.pegaRegistrosAtivos()
             return res.status(200).json(pessoasAtivas)
         } catch (erro) {
             return res.status(500).json(erro.message)
@@ -16,7 +19,7 @@ class PessoaController {
 
     static async pegaTodasAsPessoas(req, res) {
         try {
-            const todasAsPessoas = await database.Pessoas.scope('todos').findAll()
+            const todasAsPessoas = await pessoasServices.pegaTodosOsRegistros()
             return res.status(200).json(todasAsPessoas)
         } catch (erro) {
             return res.status(500).json(erro.message)
@@ -236,22 +239,8 @@ class PessoaController {
         //Recolhe o Id do estudante informado na requisição
         const { estudanteId } = req.params
         try {
-            //Utilização do método transaction do Sequelize para operação de RollBack caso ocorra falhas durante a transação
-            database.Sequelize.transaction(async transacao => {
-                //Desativa a Pessoa da requisição da tabela Pessoas
-                await database.Pessoas.update(
-                    { ativo: false },
-                    { where: { id: Number(estudanteId) } },
-                    { transaction: { transacao } }
-                )
-                //Marca a Matricula da Pessoa da requisição como cancelada
-                await database.Matriculas.update(
-                    { status: 'cancelado' },
-                    { where: { estudante_id: Number(estudanteId) } },
-                    { transaction: { transacao } }
-                )
-                return res.status(200).json({ message: `Matrículas ref. estudante ${estudanteId} canceladas` })
-            })
+            await pessoasServices.cancelaPessoaEMatricula(Number(estudanteId))
+            return res.status(200).json({ message: `Matrículas ref. estudante ${estudanteId} canceladas` })
         } catch (erro) {
             //Caso haja erro, retornaremos a mensagem em JSON
             return res.status(500).json(erro.message)
