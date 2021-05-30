@@ -217,7 +217,7 @@ class PessoaController {
         const { turmaId } = req.params
         try {
             const turmasLotadas = await database.Matriculas.findAndCountAll({
-                where: {status: 'confirmado'},
+                where: { status: 'confirmado' },
                 //Checa os valores de turma_id
                 attributes: ['turma_id'],
                 //E os agrupa
@@ -226,6 +226,32 @@ class PessoaController {
                 having: Sequelize.literal(`count(turma_id) >= ${lotacaoTurma}`)
             })
             return res.status(200).json(turmasLotadas.count)
+        } catch (erro) {
+            //Caso haja erro, retornaremos a mensagem em JSON
+            return res.status(500).json(erro.message)
+        }
+    }
+
+    static async cancelaPessoa(req, res) {
+        //Recolhe o Id do estudante informado na requisição
+        const { estudanteId } = req.params
+        try {
+            //Utilização do método transaction do Sequelize para operação de RollBack caso ocorra falhas durante a transação
+            database.Sequelize.transaction(async transacao => {
+                //Desativa a Pessoa da requisição da tabela Pessoas
+                await database.Pessoas.update(
+                    { ativo: false },
+                    { where: { id: Number(estudanteId) } },
+                    { transaction: { transacao } }
+                )
+                //Marca a Matricula da Pessoa da requisição como cancelada
+                await database.Matriculas.update(
+                    { status: 'cancelado' },
+                    { where: { estudante_id: Number(estudanteId) } },
+                    { transaction: { transacao } }
+                )
+                return res.status(200).json({ message: `Matrículas ref. estudante ${estudanteId} canceladas` })
+            })
         } catch (erro) {
             //Caso haja erro, retornaremos a mensagem em JSON
             return res.status(500).json(erro.message)
